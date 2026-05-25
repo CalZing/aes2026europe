@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AES Europe 2026 · Schedule</title>
+  <meta name="description" content="An improved timeline view of the AES Europe 2026 program, with topic filters and local bookmarks. Fetched live from sched.com.">
+  <meta name="color-scheme" content="dark">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500&display=swap">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header class="topbar">
+  <div class="topbar__brand">
+    <div class="brand__mark" aria-hidden="true">
+      <svg viewBox="0 0 64 24" width="64" height="24">
+        <!-- a small audio-waveform sigil -->
+        <path d="M2 12 H6 L8 4 L12 20 L14 8 L18 16 L22 6 L26 18 L30 10 L34 14 L38 8 L42 16 L46 4 L50 20 L54 10 L58 12 H62"
+              fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round" stroke-linecap="round"/>
+      </svg>
+    </div>
+    <div class="brand__text">
+      <h1>AES Europe 2026</h1>
+      <p>Improved schedule view · DTU, Lyngby</p>
+    </div>
+  </div>
+  <div class="topbar__meta">
+    <span id="status" class="status">loading…</span>
+    <a id="source-link" href="https://aeseurope2026.sched.com/" target="_blank" rel="noopener">official site ↗</a>
+  </div>
+</header>
+
+<nav class="daytabs" id="daytabs" aria-label="Conference days"></nav>
+
+<section class="toolbar" aria-label="Filters and controls">
+  <div class="toolbar__group toolbar__group--search">
+    <label for="search" class="visually-hidden">Search</label>
+    <input id="search" type="search" placeholder="Search title, speaker, description…" autocomplete="off">
+  </div>
+  <div class="toolbar__group">
+    <label for="group-by" class="toolbar__label">Group</label>
+    <select id="group-by">
+      <option value="topic">By topic</option>
+      <option value="room">By room</option>
+      <option value="flat">Flat list</option>
+    </select>
+  </div>
+  <div class="toolbar__group">
+    <button id="filter-toggle" class="toolbar__btn" aria-expanded="false" aria-controls="filter-panel">
+      <span id="filter-toggle-label">Topics</span>
+      <span id="filter-toggle-count" class="pill pill--accent">all</span>
+    </button>
+  </div>
+  <div class="toolbar__group">
+    <label class="checkbox">
+      <input type="checkbox" id="only-bookmarked">
+      <span>Only bookmarked</span>
+      <span id="bookmark-count" class="pill">0</span>
+    </label>
+  </div>
+  <div class="toolbar__group toolbar__group--push-right">
+    <div class="zoom" role="group" aria-label="Zoom">
+      <button id="zoom-out" class="toolbar__btn toolbar__btn--icon" aria-label="Zoom out">−</button>
+      <span id="zoom-label" class="zoom__label mono">3 px/min</span>
+      <button id="zoom-in" class="toolbar__btn toolbar__btn--icon" aria-label="Zoom in">+</button>
+    </div>
+    <button id="export-ics" class="toolbar__btn">Export bookmarks .ics</button>
+    <button id="reset-filters" class="toolbar__btn toolbar__btn--ghost">Reset</button>
+  </div>
+</section>
+
+<aside id="filter-panel" class="filter-panel" hidden aria-label="Topic filter">
+  <div class="filter-panel__header">
+    <h2>Topics</h2>
+    <div class="filter-panel__actions">
+      <button id="topics-all" class="link-btn">Clear</button>
+      <button id="topics-invert" class="link-btn">Invert</button>
+    </div>
+  </div>
+  <div class="filter-panel__list" id="topic-list" role="group"></div>
+  <p class="filter-panel__hint">Click a chip to toggle. When nothing is selected, all topics are shown.</p>
+</aside>
+
+<main class="main">
+  <div id="empty" class="empty hidden">
+    <p>No sessions match your filters.</p>
+  </div>
+  <div id="timeline-host" class="timeline-host"></div>
+</main>
+
+<dialog id="session-modal" class="modal">
+  <article id="session-modal-body"></article>
+  <form method="dialog" class="modal__close">
+    <button value="close" aria-label="Close">✕</button>
+  </form>
+</dialog>
+
+<footer class="footer">
+  <span>Data fetched live from <a href="https://aeseurope2026.sched.com/all.ics" target="_blank" rel="noopener">aeseurope2026.sched.com</a>.</span>
+  <span>Bookmarks live in this browser only.</span>
+</footer>
+
+<script src="app.js"></script>
+</body>
+</html>
