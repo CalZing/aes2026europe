@@ -462,7 +462,6 @@
         block.innerHTML = `
           ${state.bookmarks.has(ev.uid) ? '<span class="session__bookmark" aria-hidden="true">★</span>' : ''}
           <div class="session__title">${escapeHtml(title)}</div>
-          ${ev.location ? `<div class="session__loc mono">${escapeHtml(ev.location)}</div>` : ''}
         `;
         block.addEventListener('click', () => openModal(ev));
         r.appendChild(block);
