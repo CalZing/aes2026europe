@@ -419,10 +419,14 @@
     body.style.width = bodyWidth + 'px';
 
     rows.forEach((row, idx) => {
+      // assign lanes so overlapping events don't visually collide
+      const { laneByUid, laneCount } = assignLanes(row.events);
+
       // label
       const label = document.createElement('div');
       label.className = 'row__label';
       label.style.setProperty('--row-hue', String(HUES[idx % HUES.length]));
+      label.style.setProperty('--lanes', String(laneCount));
       label.innerHTML = `
         <div class="row__label-name" title="${escapeHtml(row.label)}">${escapeHtml(row.label)}</div>
         <div class="row__label-count mono">${row.events.length} session${row.events.length === 1 ? '' : 's'}</div>
@@ -433,6 +437,7 @@
       const r = document.createElement('div');
       r.className = 'row';
       r.style.setProperty('--row-hue', String(HUES[idx % HUES.length]));
+      r.style.setProperty('--lanes', String(laneCount));
       r.style.width = bodyWidth + 'px';
 
       // tick lines repeated per row for visual continuity
@@ -447,17 +452,15 @@
         const left = leftMin * pxPerMin;
         const width = widthMin * pxPerMin;
         const block = document.createElement('button');
-        block.className = 'session' + (state.bookmarks.has(ev.uid) ? ' session--bookmarked' : '') + (width < 60 ? ' session--narrow' : '');
+        block.className = 'session' + (state.bookmarks.has(ev.uid) ? ' session--bookmarked' : '') + (width < 36 ? ' session--narrow' : '');
         block.style.left = left + 'px';
         block.style.width = width + 'px';
+        block.style.setProperty('--lane', String(laneByUid.get(ev.uid) || 0));
         const title = ev.title || '(untitled)';
         const timeLabel = `${ev.start.label}${ev.end ? '–' + ev.end.label : ''}`;
         block.title = `${title}\n${timeLabel}${ev.location ? '\n' + ev.location : ''}`;
         block.innerHTML = `
-          <div class="session__time">
-            ${state.bookmarks.has(ev.uid) ? '<span class="session__bookmark" aria-hidden="true">★</span>' : ''}
-            ${escapeHtml(timeLabel)}
-          </div>
+          ${state.bookmarks.has(ev.uid) ? '<span class="session__bookmark" aria-hidden="true">★</span>' : ''}
           <div class="session__title">${escapeHtml(title)}</div>
           ${ev.location ? `<div class="session__loc mono">${escapeHtml(ev.location)}</div>` : ''}
         `;
@@ -504,6 +507,38 @@
         parent.appendChild(label);
       }
     }
+  }
+
+  // Sweep-line lane assignment. Sorts events by start, then places each event
+  // in the lowest-indexed lane whose previous occupant has already ended.
+  // Returns { laneByUid: Map<uid, laneIndex>, laneCount: number of lanes used }.
+  function assignLanes(events) {
+    const laneByUid = new Map();
+    if (!events.length) return { laneByUid, laneCount: 1 };
+    const sorted = [...events].sort((a, b) => {
+      const da = a.start.minutes - b.start.minutes;
+      if (da !== 0) return da;
+      const ea = a.end ? a.end.minutes : a.start.minutes + 30;
+      const eb = b.end ? b.end.minutes : b.start.minutes + 30;
+      return eb - ea; // longer event first on ties so it claims the top lane
+    });
+    const laneEnd = []; // laneEnd[i] = end minute of latest event in lane i
+    for (const ev of sorted) {
+      const s = ev.start.minutes;
+      const e = ev.end ? ev.end.minutes : s + 30;
+      let lane = -1;
+      for (let i = 0; i < laneEnd.length; i++) {
+        if (laneEnd[i] <= s) { lane = i; break; }
+      }
+      if (lane === -1) {
+        lane = laneEnd.length;
+        laneEnd.push(e);
+      } else {
+        laneEnd[lane] = e;
+      }
+      laneByUid.set(ev.uid, lane);
+    }
+    return { laneByUid, laneCount: Math.max(1, laneEnd.length) };
   }
 
   function getCssVar(name) {

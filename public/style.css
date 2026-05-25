@@ -40,7 +40,7 @@
   --shadow-1: 0 1px 0 rgba(255,255,255,0.03) inset, 0 1px 2px rgba(0,0,0,0.3);
   --shadow-2: 0 6px 24px rgba(0,0,0,0.45);
 
-  --row-h: 64px;
+  --row-h: 104px;
   --time-h: 40px;
   --label-w: 220px;
 }
@@ -486,7 +486,7 @@ select, .toolbar__btn {
 }
 
 .row {
-  height: var(--row-h);
+  height: calc(var(--lanes, 1) * var(--row-h));
   position: relative;
   border-bottom: 1px solid var(--border);
   --row-hue: var(--hue-a);
@@ -501,7 +501,7 @@ select, .toolbar__btn {
 .row:nth-child(8n+8) { --row-hue: var(--hue-h); }
 
 .row__label {
-  height: var(--row-h);
+  height: calc(var(--lanes, 1) * var(--row-h));
   border-bottom: 1px solid var(--border);
   padding: 8px 12px;
   display: flex;
@@ -538,20 +538,21 @@ select, .toolbar__btn {
 /* session block */
 .session {
   position: absolute;
-  top: 4px;
+  top: calc(var(--lane, 0) * var(--row-h) + 4px);
   height: calc(var(--row-h) - 8px);
   background: var(--bg-elev-2);
   border: 1px solid var(--border);
   border-left: 3px solid hsl(var(--row-hue) 75% 60%);
   border-radius: var(--radius);
-  padding: 6px 8px 6px 9px;
+  padding: 8px 10px 8px 11px;
   overflow: hidden;
   cursor: pointer;
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 4px;
   transition: transform 100ms, border-color 100ms, background 100ms;
   min-width: 6px;
+  text-align: left;
 }
 .session:hover {
   background: var(--bg-elev-3);
@@ -569,28 +570,28 @@ select, .toolbar__btn {
   border-color: rgba(91, 217, 160, 0.5);
   background: var(--signal-soft);
 }
-.session__time {
-  font-family: 'Geist Mono', monospace;
-  font-size: 10px;
-  color: var(--fg-muted);
-  line-height: 1.2;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
 .session__bookmark {
+  position: absolute;
+  top: 4px;
+  right: 6px;
   color: var(--signal);
-  font-size: 11px;
+  font-size: 12px;
+  line-height: 1;
+  pointer-events: none;
 }
 .session__title {
-  font-size: 12px;
-  font-weight: 500;
-  line-height: 1.25;
+  font-size: 13.5px;
+  font-weight: 600;
+  line-height: 1.3;
   color: var(--fg);
+  letter-spacing: -0.005em;
   display: -webkit-box;
-  -webkit-line-clamp: 2;
+  -webkit-line-clamp: 4;
   -webkit-box-orient: vertical;
   overflow: hidden;
+  word-break: break-word;
+  hyphens: auto;
+  flex: 1 1 auto;
 }
 .session__loc {
   font-family: 'Geist Mono', monospace;
@@ -599,10 +600,17 @@ select, .toolbar__btn {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  flex: 0 0 auto;
 }
-.session--narrow .session__title,
+.session--narrow {
+  padding: 6px 4px 6px 7px;
+}
+.session--narrow .session__title {
+  font-size: 11px;
+  -webkit-line-clamp: 5;
+  letter-spacing: -0.01em;
+}
 .session--narrow .session__loc { display: none; }
-.session--narrow .session__time { font-size: 9px; }
 
 /* ---------- flat list view ----------------------------------------------- */
 .flat-list { padding: 8px 24px 32px; display: flex; flex-direction: column; gap: 6px; }
@@ -721,7 +729,7 @@ select, .toolbar__btn {
 
 /* ---------- responsive --------------------------------------------------- */
 @media (max-width: 720px) {
-  :root { --label-w: 140px; --row-h: 70px; }
+  :root { --label-w: 140px; --row-h: 108px; }
   .topbar { flex-direction: column; align-items: flex-start; gap: 8px; padding: 14px 16px; }
   .toolbar { padding: 10px 16px; }
   .toolbar__group--push-right { margin-left: 0; flex-wrap: wrap; }
